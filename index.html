@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Echo Move</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #0f0f14;
+    color: white;
+    font-family: system-ui, sans-serif;
+    touch-action: manipulation;
+}
+
+#game {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    background: #161622;
+    border-radius: 12px;
+}
+
+#ui {
+    position: absolute;
+    top: 20px;
+    font-size: 18px;
+}
+
+#overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    display: none;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background: #4cafef;
+    color: black;
+    margin-top: 16px;
+}
+</style>
+</head>
+
+<body>
+<div id="game">
+    <div id="ui">Score: <span id="score">0</span></div>
+    <canvas id="canvas" width="300" height="500"></canvas>
+
+    <div id="overlay">
+        <h2>Game Over</h2>
+        <button onclick="startGame()">Restart</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const overlay = document.getElementById("overlay");
+
+const COLS = 6;
+const ROWS = 10;
+const SIZE = 50;
+
+let grid, piece, echoQueue, score, gameOver;
+
+const SHAPES = [
+    [[1,1],[1,1]],
+    [[1,1,1,1]],
+    [[1,0],[1,0],[1,1]],
+    [[0,1],[0,1],[1,1]]
+];
+
+function resetGrid() {
+    grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+}
+
+function newPiece() {
+    const shape = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+    return {
+        shape,
+        x: Math.floor((COLS - shape[0].length) / 2),
+        y: 0
+    };
+}
+
+function drawCell(x, y) {
+    ctx.fillStyle = "#4cafef";
+    ctx.fillRect(x*SIZE, y*SIZE, SIZE-2, SIZE-2);
+}
+
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    grid.forEach((row,y) =>
+        row.forEach((cell,x) => cell && drawCell(x,y))
+    );
+
+    piece.shape.forEach((row,y) =>
+        row.forEach((cell,x) => {
+            if(cell) drawCell(piece.x+x, piece.y+y);
+        })
+    );
+}
+
+function collide(px, py) {
+    return piece.shape.some((row,y) =>
+        row.some((cell,x) => {
+            if(!cell) return false;
+            const nx = px+x;
+            const ny = py+y;
+            return nx<0 || nx>=COLS || ny>=ROWS || grid[ny]?.[nx];
+        })
+    );
+}
+
+function lockPiece() {
+    piece.shape.forEach((row,y) =>
+        row.forEach((cell,x) => {
+            if(cell) grid[piece.y+y][piece.x+x] = 1;
+        })
+    );
+
+    clearLines();
+    piece = newPiece();
+    if(collide(piece.x, piece.y)) endGame();
+}
+
+function clearLines() {
+    grid = grid.filter(row => row.some(cell => !cell));
+    while(grid.length < ROWS) grid.unshift(Array(COLS).fill(0));
+    score += 10;
+    scoreEl.textContent = score;
+}
+
+function move(dx) {
+    if(!collide(piece.x+dx, piece.y)) piece.x += dx;
+}
+
+function drop() {
+    if(!collide(piece.x, piece.y+1)) piece.y++;
+    else lockPiece();
+}
+
+function rotate() {
+    const rotated = piece.shape[0].map((_,i) =>
+        piece.shape.map(row => row[i]).reverse()
+    );
+    const old = piece.shape;
+    piece.shape = rotated;
+    if(collide(piece.x, piece.y)) piece.shape = old;
+}
+
+function echo(action) {
+    echoQueue.push(action);
+    setTimeout(() => action(), 1000);
+}
+
+function endGame() {
+    gameOver = true;
+    overlay.style.display = "flex";
+}
+
+function startGame() {
+    overlay.style.display = "none";
+    resetGrid();
+    piece = newPiece();
+    echoQueue = [];
+    score = 0;
+    gameOver = false;
+    scoreEl.textContent = score;
+}
+
+document.addEventListener("touchstart", e => {
+    const x = e.touches[0].clientX;
+    const w = window.innerWidth;
+    if(x < w/3) echo(() => move(-1));
+    else if(x > w*2/3) echo(() => move(1));
+    else echo(rotate);
+});
+
+let last = 0;
+function loop(t=0) {
+    if(!gameOver && t-last > 600) {
+        drop();
+        last = t;
+    }
+    draw();
+    requestAnimationFrame(loop);
+}
+
+startGame();
+loop();
+</script>
+</body>
+</html>
