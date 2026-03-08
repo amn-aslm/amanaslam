@@ -1,0 +1,2563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Luna — In Tune With You</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Rose Dust Palette */
+  --bg:        #fce4ec;
+  --bg-light:  #fff0f5;
+  --pink-soft: #f8bbd0;
+  --pink-mid:  #f48fb1;
+  --pink:      #e91e8c;
+  --berry:     #6d2b4e;
+  --deep:      #880e4f;
+  --white:     #ffffff;
+  --text:      #3d1a24;
+  --subtext:   #9e6b7e;
+  --card:      rgba(255,255,255,0.85);
+  --coral:     #ff6b81;
+
+  /* Phase themes */
+  --phase-bg:      #fce4ec;
+  --phase-primary: #f48fb1;
+  --phase-accent:  #e91e8c;
+  --phase-deep:    #880e4f;
+  --phase-blob:    #f48fb1;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--phase-bg);
+  color: var(--text);
+  overflow: hidden;
+  transition: background 1.5s ease;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  background: var(--phase-bg);
+  overflow: hidden;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+/* ── SCROLLABLE BODY ── */
+.page-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 100px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── TYPOGRAPHY ── */
+.t-display {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--deep);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.t-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--deep);
+  letter-spacing: -0.01em;
+}
+.t-section {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--deep);
+  margin-bottom: 12px;
+}
+.t-body { font-size: 0.88rem; color: var(--subtext); line-height: 1.5; font-weight: 400; }
+.t-label { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subtext); font-weight: 500; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  background: var(--berry);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 17px 32px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.2s, opacity 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--deep);
+  border: 1.5px solid var(--pink-mid);
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+.btn-outline:active { background: var(--pink-soft); }
+
+.btn-google {
+  background: white;
+  color: #3d1a24;
+  border: 1.5px solid #f0d0da;
+  border-radius: 50px;
+  padding: 15px 32px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(136,14,79,0.08);
+}
+.btn-google:active { transform: scale(0.98); }
+
+/* ── INPUTS ── */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="date"], input[type="month"], input[type="number"], textarea, select {
+  background: white;
+  border: 1.5px solid #f0d0da;
+  border-radius: 16px;
+  padding: 15px 18px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(233,30,140,0.1);
+}
+textarea { resize: none; min-height: 80px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid rgba(244,143,177,0.2);
+  box-shadow: 0 4px 20px rgba(136,14,79,0.06);
+}
+
+/* ── STACK ── */
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+.stack-lg { display: flex; flex-direction: column; gap: 20px; }
+
+/* ══════════════════════════════════════
+   SPLASH
+══════════════════════════════════════ */
+#screen-splash {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 100%);
+}
+.splash-moon {
+  font-size: 5rem;
+  animation: float 4s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.splash-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--deep);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.splash-tagline {
+  font-size: 0.9rem;
+  color: var(--subtext);
+  letter-spacing: 0.1em;
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+.splash-btn-wrap { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ══════════════════════════════════════
+   ONBOARDING
+══════════════════════════════════════ */
+.onboard-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 24px 32px;
+  max-width: 440px;
+  width: 100%;
+  margin: 0 auto;
+}
+.step-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 36px;
+}
+.step-pip {
+  height: 4px;
+  border-radius: 2px;
+  background: #f0d0da;
+  flex: 1;
+  transition: background 0.3s;
+}
+.step-pip.done { background: var(--pink); }
+.step-pip.active { background: var(--deep); }
+
+.ob-question {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--deep);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.ob-sub {
+  font-size: 0.88rem;
+  color: var(--subtext);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* Life stage cards */
+.stage-list { display: flex; flex-direction: column; gap: 10px; }
+.stage-card {
+  background: white;
+  border: 2px solid #f0d0da;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.stage-card:active { transform: scale(0.98); }
+.stage-card.selected { border-color: var(--pink); background: #fff0f5; }
+.stage-icon-wrap {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.stage-card.selected .stage-icon-wrap { background: #fce4ec; }
+.stage-card-text .stage-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+.stage-card-text .stage-desc { font-size: 0.75rem; color: var(--subtext); margin-top: 2px; }
+
+/* ══════════════════════════════════════
+   NAV BAR
+══════════════════════════════════════ */
+.nav-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(252,228,236,0.96);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(244,143,177,0.25);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 24px;
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 18px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+.nav-item.active { background: rgba(233,30,140,0.08); }
+.nav-icon-img {
+  width: 24px; height: 24px;
+  object-fit: contain;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.nav-item.active .nav-icon-img { opacity: 1; }
+.nav-icon-svg {
+  width: 24px; height: 24px;
+  fill: none;
+  stroke: var(--subtext);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.2s;
+}
+.nav-item.active .nav-icon-svg { stroke: var(--deep); }
+.nav-label {
+  font-size: 0.68rem;
+  color: var(--subtext);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+.nav-item.active .nav-label { color: var(--deep); font-weight: 600; }
+
+/* ══════════════════════════════════════
+   HOME PAGE — matching your design
+══════════════════════════════════════ */
+.home-top {
+  padding: 20px 20px 0;
+  background: var(--phase-bg);
+  transition: background 1.5s;
+}
+.home-greeting {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--deep);
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+/* Week strip */
+.week-strip {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.week-strip::-webkit-scrollbar { display: none; }
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 42px;
+}
+.week-day-name {
+  font-size: 0.68rem;
+  color: var(--subtext);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.week-day-num {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--subtext);
+  transition: all 0.2s;
+}
+.week-day.today .week-day-num {
+  background: var(--deep);
+  color: white;
+}
+.week-day.period-day .week-day-num {
+  background: var(--pink-soft);
+  color: var(--deep);
+}
+
+/* Phase status row */
+.phase-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.phase-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.phase-dot {
+  width: 48px; height: 32px;
+  border-radius: 50px;
+  background: var(--coral);
+  transition: background 1.5s;
+  flex-shrink: 0;
+}
+
+/* Amoeba blob card */
+.blob-card {
+  width: 300px;
+  height: 300px;
+  margin: 0 auto 20px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.blob-card-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.blob-card-content {
+  position: relative;
+  z-index: 2;
+  width: 175px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+}
+.blob-quote {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.blob-sub {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+/* Symptom button */
+.symptom-btn {
+  background: var(--berry);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 17px 32px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 28px;
+  transition: transform 0.2s;
+  letter-spacing: 0.01em;
+}
+.symptom-btn:active { transform: scale(0.98); }
+
+/* Updates cards */
+.updates-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 28px;
+}
+.updates-row::-webkit-scrollbar { display: none; }
+.update-card {
+  background: white;
+  border-radius: 16px;
+  padding: 14px;
+  min-width: 130px;
+  max-width: 150px;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--text);
+  line-height: 1.4;
+  font-weight: 400;
+  box-shadow: 0 2px 12px rgba(136,14,79,0.06);
+  border: 1px solid rgba(244,143,177,0.15);
+}
+
+/* Cycle history chart */
+.chart-card {
+  background: var(--pink-mid);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.chart-title { font-size: 0.78rem; color: rgba(255,255,255,0.8); margin-bottom: 14px; font-weight: 500; }
+.chart-area {
+  position: relative;
+  height: 100px;
+  margin-bottom: 10px;
+}
+.chart-svg { width: 100%; height: 100%; overflow: visible; }
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.chart-label { font-size: 0.68rem; color: rgba(255,255,255,0.7); font-weight: 400; }
+
+/* ══════════════════════════════════════
+   MY CYCLE PAGE
+══════════════════════════════════════ */
+.cycle-header {
+  padding: 20px 20px 0;
+  margin-bottom: 16px;
+}
+
+/* Full month calendar */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.month-nav-btn {
+  background: white;
+  border: 1.5px solid #f0d0da;
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--deep);
+  transition: all 0.2s;
+}
+.month-nav-btn:active { background: var(--pink-soft); }
+.month-title { font-weight: 700; color: var(--deep); font-size: 1rem; }
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7,1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.cal-wday { text-align: center; font-size: 0.65rem; color: var(--subtext); font-weight: 600; padding: 4px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--subtext);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.cal-cell:active { transform: scale(0.9); }
+.cal-cell.today { background: var(--deep); color: white; font-weight: 700; }
+.cal-cell.period     { background: #ffcdd2; color: #c62828; }
+.cal-cell.follicular { background: #dcedc8; color: #33691e; }
+.cal-cell.ovulation  { background: #fff9c4; color: #f57f17; }
+.cal-cell.luteal     { background: #e3f2fd; color: #1565c0; }
+.cal-cell.pms        { background: #f3e5f5; color: #7b1fa2; }
+.cal-cell.has-task::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--deep);
+}
+.cal-cell.empty { pointer-events: none; }
+
+/* Period override editor */
+.period-override-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0d0da;
+}
+.override-month { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.override-dur { font-size: 0.82rem; color: var(--subtext); }
+.override-edit-btn {
+  background: var(--bg);
+  border: 1.5px solid #f0d0da;
+  border-radius: 50px;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  color: var(--deep);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* ══════════════════════════════════════
+   CHECK-IN / SYMPTOMS PAGE
+══════════════════════════════════════ */
+.checkin-done-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  border: 2px solid var(--pink-soft);
+  box-shadow: 0 4px 20px rgba(136,14,79,0.06);
+}
+.checkin-done-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.checkin-done-title { font-weight: 700; color: var(--deep); font-size: 1.1rem; margin-bottom: 6px; }
+.checkin-done-sub { font-size: 0.85rem; color: var(--subtext); margin-bottom: 20px; line-height: 1.5; }
+.checkin-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f9e4ec;
+  font-size: 0.84rem;
+}
+.checkin-summary-row:last-child { border-bottom: none; }
+.cs-label { color: var(--subtext); }
+.cs-value { font-weight: 600; color: var(--text); }
+
+/* Word selector buttons */
+.word-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.word-btn {
+  background: white;
+  border: 1.5px solid #f0d0da;
+  border-radius: 50px;
+  padding: 11px 14px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.84rem;
+  color: var(--subtext);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.word-btn:active { transform: scale(0.97); }
+.word-btn.selected {
+  background: #fff0f5;
+  border-color: var(--pink);
+  color: var(--deep);
+  font-weight: 600;
+}
+
+/* Scale row */
+.scale-row {
+  display: flex;
+  gap: 6px;
+}
+.scale-btn {
+  flex: 1;
+  background: white;
+  border: 1.5px solid #f0d0da;
+  border-radius: 14px;
+  padding: 12px 6px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.78rem;
+  color: var(--subtext);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.scale-btn.selected {
+  background: #fff0f5;
+  border-color: var(--pink);
+  color: var(--deep);
+  font-weight: 700;
+}
+
+/* Symptom tags */
+.symptom-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.stag {
+  background: white;
+  border: 1.5px solid #f0d0da;
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  color: var(--subtext);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.stag.selected { background: #fff0f5; border-color: var(--pink); color: var(--deep); font-weight: 600; }
+
+/* UTI checker */
+.uti-banner {
+  background: linear-gradient(135deg, #fff0f5, #fce4ec);
+  border: 1.5px solid #f8bbd0;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.uti-icon { font-size: 1.6rem; flex-shrink: 0; }
+.uti-text .uti-title { font-weight: 700; font-size: 0.9rem; color: var(--deep); margin-bottom: 2px; }
+.uti-text .uti-sub { font-size: 0.75rem; color: var(--subtext); }
+.uti-arrow { margin-left: auto; color: var(--pink); font-size: 1rem; }
+
+/* ══════════════════════════════════════
+   INSIGHTS PAGE
+══════════════════════════════════════ */
+.insight-card {
+  background: white;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(136,14,79,0.05);
+  border: 1px solid rgba(244,143,177,0.15);
+}
+.insight-card-date { font-size: 0.72rem; color: var(--subtext); margin-bottom: 8px; font-weight: 500; }
+.insight-card-phase {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 50px;
+  margin-bottom: 10px;
+}
+.insight-card-text { font-size: 0.84rem; color: var(--text); line-height: 1.6; }
+.insight-card-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f9e4ec;
+}
+.stat-chip {
+  background: var(--bg);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  color: var(--subtext);
+  font-weight: 500;
+}
+
+/* Insight result */
+.insight-result-blob {
+  background: var(--phase-primary);
+  border-radius: 30px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: background 1.5s;
+  margin-bottom: 16px;
+}
+.insight-result-text { font-size: 0.9rem; color: white; line-height: 1.7; font-weight: 400; }
+
+/* Loading dots */
+.dots { display: inline-flex; gap: 5px; align-items: center; }
+.dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: white;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.5} 40%{transform:scale(1);opacity:1} }
+
+/* ══════════════════════════════════════
+   PROFILE PAGE
+══════════════════════════════════════ */
+.profile-hero {
+  background: linear-gradient(160deg, var(--pink-soft) 0%, var(--bg) 100%);
+  border-radius: 24px;
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.profile-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-mid), var(--deep));
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  overflow: hidden;
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-name { font-size: 1.3rem; font-weight: 700; color: var(--deep); margin-bottom: 4px; }
+.profile-stage { font-size: 0.82rem; color: var(--subtext); margin-bottom: 12px; }
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(249,168,37,0.15);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: #e65100;
+  font-weight: 600;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f9e4ec;
+  cursor: pointer;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+.setting-arrow { color: var(--pink); font-size: 0.9rem; }
+
+/* Switch status tag */
+.status-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: none;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  transition: all 0.2s;
+}
+.status-period { background: #ffcdd2; color: #c62828; }
+.status-pregnant { background: #fff9c4; color: #f57f17; }
+.status-menopause { background: #f3e5f5; color: #7b1fa2; }
+
+/* ══════════════════════════════════════
+   MODAL / BOTTOM SHEET
+══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(61,26,36,0.4);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.bottom-sheet {
+  background: white;
+  border-radius: 28px 28px 0 0;
+  padding: 24px 24px 40px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slide-up 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.sheet-handle {
+  width: 40px; height: 4px;
+  border-radius: 2px;
+  background: #f0d0da;
+  margin: 0 auto 20px;
+}
+.sheet-title { font-size: 1.1rem; font-weight: 700; color: var(--deep); margin-bottom: 16px; }
+
+/* To-do */
+.todo-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.todo-input { border-radius: 14px; flex: 1; }
+.todo-add-btn {
+  background: var(--deep);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 0 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f9e4ec;
+}
+.todo-check {
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  border: 2px solid #f0d0da;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.todo-check.done { background: var(--deep); border-color: var(--deep); color: white; font-size: 0.7rem; }
+.todo-text { flex: 1; font-size: 0.86rem; color: var(--text); line-height: 1.4; }
+.todo-text.done-text { text-decoration: line-through; color: var(--subtext); }
+.todo-warning {
+  font-size: 0.72rem;
+  color: #e65100;
+  background: #fff3e0;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  display: inline-block;
+}
+.todo-phase-suggest {
+  background: #fff0f5;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: var(--deep);
+  margin-top: 6px;
+  border: 1px solid #f8bbd0;
+  line-height: 1.5;
+}
+
+/* Phase colour themes */
+.theme-period    { --phase-bg:#fce4ec; --phase-primary:#ef9a9a; --phase-accent:#e53935; --phase-deep:#b71c1c; --phase-blob:#ef9a9a; }
+.theme-follicular{ --phase-bg:#f1f8e9; --phase-primary:#a5d6a7; --phase-accent:#43a047; --phase-deep:#1b5e20; --phase-blob:#a5d6a7; }
+.theme-ovulation { --phase-bg:#fffde7; --phase-primary:#ffe082; --phase-accent:#f9a825; --phase-deep:#e65100; --phase-blob:#ffe082; }
+.theme-luteal    { --phase-bg:#e3f2fd; --phase-primary:#90caf9; --phase-accent:#1976d2; --phase-deep:#0d47a1; --phase-blob:#90caf9; }
+.theme-pms       { --phase-bg:#f3e5f5; --phase-primary:#ce93d8; --phase-accent:#8e24aa; --phase-deep:#4a148c; --phase-blob:#ce93d8; }
+
+/* Or separator */
+.or-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--subtext);
+  font-size: 0.8rem;
+  margin: 4px 0;
+}
+.or-sep::before, .or-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #f0d0da;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SPLASH -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen active" id="screen-splash">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:32px">
+    <div class="splash-moon">🌙</div>
+    <div class="splash-title">Luna</div>
+    <div class="splash-tagline">in tune with you</div>
+    <div class="splash-btn-wrap">
+      <button class="btn-google" onclick="goTo('screen-ob-login')">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="or-sep">or</div>
+      <button class="btn-primary" onclick="goTo('screen-ob-login')">Sign up with email</button>
+      <p style="text-align:center;font-size:0.8rem;color:var(--subtext)">Already have an account? <span style="color:var(--deep);font-weight:600;cursor:pointer" onclick="loadApp()">Sign in</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ONBOARDING: LOGIN / SIGNUP -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-ob-login">
+  <div class="onboard-wrap">
+    <div class="step-bar">
+      <div class="step-pip active"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+    </div>
+    <div class="ob-question">Create your account</div>
+    <div class="ob-sub">Your safe space starts here. Everything is private and secure.</div>
+    <div class="stack">
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Email</div>
+        <input type="email" id="ob-email" placeholder="your@email.com" />
+      </div>
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Password</div>
+        <input type="password" id="ob-password" placeholder="Create a password" />
+      </div>
+      <button class="btn-primary" onclick="saveLogin()">Continue →</button>
+      <div class="or-sep">or</div>
+      <button class="btn-google" onclick="saveLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ONBOARDING: NAME + DOB -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-ob-name">
+  <div class="onboard-wrap">
+    <div class="step-bar">
+      <div class="step-pip done"></div>
+      <div class="step-pip active"></div>
+      <div class="step-pip"></div>
+      <div class="step-pip"></div>
+    </div>
+    <div class="ob-question">What's your name?</div>
+    <div class="ob-sub">Luna will use this to make everything feel personal to you.</div>
+    <div class="stack">
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Your name</div>
+        <input type="text" id="ob-name" placeholder="e.g. Priya" maxlength="30" />
+      </div>
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Date of birth</div>
+        <input type="date" id="ob-dob" />
+      </div>
+      <button class="btn-primary" onclick="saveName()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ONBOARDING: LIFE STAGE -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-ob-stage">
+  <div class="onboard-wrap" style="overflow-y:auto">
+    <div class="step-bar">
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip active"></div>
+      <div class="step-pip"></div>
+    </div>
+    <div class="ob-question">Where are you right now?</div>
+    <div class="ob-sub">Luna shows you different features based on your life stage.</div>
+    <div class="stage-list" id="stage-list">
+      <div class="stage-card" onclick="selectStage(this,'periods')" data-stage="periods">
+        <div class="stage-icon-wrap">🩸</div>
+        <div class="stage-card-text">
+          <div class="stage-name">I'm on my period / regular cycle</div>
+          <div class="stage-desc">Track your cycle, symptoms and mood</div>
+        </div>
+      </div>
+      <div class="stage-card" onclick="selectStage(this,'pregnant')" data-stage="pregnant">
+        <div class="stage-icon-wrap">🤰</div>
+        <div class="stage-card-text">
+          <div class="stage-name">I'm pregnant</div>
+          <div class="stage-desc">Trimester tracking and pregnancy wellness</div>
+        </div>
+      </div>
+      <div class="stage-card" onclick="selectStage(this,'postpartum')" data-stage="postpartum">
+        <div class="stage-icon-wrap">🌺</div>
+        <div class="stage-card-text">
+          <div class="stage-name">Postpartum / New mum</div>
+          <div class="stage-desc">Recovery, sleep and emotional support</div>
+        </div>
+      </div>
+      <div class="stage-card" id="stage-perimenopause" onclick="selectStage(this,'perimenopause')" data-stage="perimenopause" style="display:none">
+        <div class="stage-icon-wrap">🌙</div>
+        <div class="stage-card-text">
+          <div class="stage-name">Perimenopause</div>
+          <div class="stage-desc">Irregular cycles and hormonal changes</div>
+        </div>
+      </div>
+      <div class="stage-card" id="stage-menopause" onclick="selectStage(this,'menopause')" data-stage="menopause" style="display:none">
+        <div class="stage-icon-wrap">🦋</div>
+        <div class="stage-card-text">
+          <div class="stage-name">Menopause</div>
+          <div class="stage-desc">Symptom tracking and wellness support</div>
+        </div>
+      </div>
+    </div>
+    <div id="pregnant-weeks-wrap" style="display:none;margin-top:14px">
+      <div class="t-label" style="margin-bottom:6px">How many weeks pregnant?</div>
+      <input type="number" id="ob-weeks" placeholder="e.g. 14" min="1" max="42" />
+    </div>
+    <button class="btn-primary" style="margin-top:20px" onclick="saveStage()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ONBOARDING: CYCLE DETAILS -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-ob-cycle">
+  <div class="onboard-wrap" style="overflow-y:auto">
+    <div class="step-bar">
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip done"></div>
+      <div class="step-pip active"></div>
+    </div>
+    <div class="ob-question" id="cycle-ob-title">Tell Luna about your cycle</div>
+    <div class="ob-sub" id="cycle-ob-sub">This helps Luna predict your period and personalise your daily insights.</div>
+    <div class="stack" id="cycle-ob-fields">
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Last period start date</div>
+        <input type="date" id="ob-last-period" />
+      </div>
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Average cycle length (days)</div>
+        <input type="number" id="ob-cycle-len" value="28" min="21" max="45" />
+      </div>
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Period duration (days)</div>
+        <input type="number" id="ob-period-dur" value="5" min="2" max="10" />
+      </div>
+    </div>
+    <div id="api-key-section" style="margin-top:14px">
+      <div class="t-label" style="margin-bottom:6px">Anthropic API Key (optional)</div>
+      <input type="password" id="ob-api-key" placeholder="sk-ant-api03-..." style="font-family:monospace;font-size:0.82rem" />
+      <p style="font-size:0.72rem;color:var(--subtext);margin-top:6px">Powers AI insights. Get free at console.anthropic.com. Leave blank for demo mode.</p>
+    </div>
+    <button class="btn-primary" style="margin-top:20px" onclick="saveCycle()">Start my Luna journey 🌙</button>
+    <button class="btn-outline" style="margin-top:8px" onclick="skipCycle()">Skip for now</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- HOME -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="page-body" id="home-body">
+    <!-- Greeting row -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-top:16px">
+      <div class="home-greeting" id="home-greeting">Hey Bestie,</div>
+      <div id="home-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f48fb1,#880e4f);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;overflow:hidden;flex-shrink:0">L</div>
+    </div>
+    <!-- Week strip -->
+    <div class="week-strip" id="week-strip"></div>
+    <!-- Phase row with cycle day indicator -->
+    <div class="phase-row">
+      <div>
+        <div class="phase-text" id="phase-text">Your body is<br>resting today.</div>
+        <div id="cycle-day-indicator" style="font-size:0.75rem;color:var(--subtext);margin-top:4px;font-weight:500"></div>
+      </div>
+      <div class="phase-dot" id="phase-dot"></div>
+    </div>
+
+    <!-- Smooth curvy blob quote card -->
+    <div class="blob-card" id="blob-card">
+      <svg class="blob-card-svg" id="blob-card-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <path id="amoeba-blob" fill="#f48fb1">
+          <animate attributeName="d"
+            dur="6s"
+            repeatCount="indefinite"
+            calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
+            values="
+              M150,52 C192,48 252,90 255,140 C258,190 218,252 168,256 C118,260 52,222 46,172 C40,122 72,50 108,48 C120,47 138,53 150,52 Z;
+              M150,46 C196,44 258,86 260,138 C262,190 220,258 166,260 C112,262 46,218 44,166 C42,114 78,44 116,44 C128,44 138,47 150,46 Z;
+              M150,52 C192,48 252,90 255,140 C258,190 218,252 168,256 C118,260 52,222 46,172 C40,122 72,50 108,48 C120,47 138,53 150,52 Z
+            "
+          />
+        </path>
+      </svg>
+      <div class="blob-card-content">
+        <div class="blob-quote" id="blob-quote">"The world can wait. You come first today."</div>
+        <div class="blob-sub" id="blob-sub">You are in your 2nd day of your period.</div>
+      </div>
+    </div>
+
+    <!-- Add symptoms button -->
+    <button class="symptom-btn" onclick="switchTab('checkin')">Add your symptoms</button>
+
+    <!-- My updates -->
+    <div class="t-section">My updates</div>
+    <div class="updates-row" id="updates-row">
+      <div class="update-card">Might feel heavy cramps today</div>
+      <div class="update-card">Headache and back pain is on the way</div>
+      <div class="update-card">A bar of dark chocolate might help you</div>
+      <div class="update-card">Rest more, your body is working hard</div>
+    </div>
+
+    <!-- Cycle history chart -->
+    <div class="t-section">My cycle history</div>
+    <div class="chart-card">
+      <div class="chart-title">Cycle length over time</div>
+      <div class="chart-area">
+        <svg class="chart-svg" id="chart-svg" viewBox="0 0 300 80" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="chart-labels" id="chart-labels"></div>
+    </div>
+
+  </div>
+
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="switchTab('home')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('cycle')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">My Cycle</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('insights')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- MY CYCLE -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-cycle">
+  <div class="page-body" style="padding-top:0">
+    <div style="padding:16px 0 0">
+      <div class="t-title" style="margin-bottom:16px">My Cycle</div>
+      <div class="month-nav">
+        <button class="month-nav-btn" onclick="prevMonth()">‹</button>
+        <div class="month-title" id="cal-month-title">March 2026</div>
+        <button class="month-nav-btn" onclick="nextMonth()">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <div class="cal-wday">S</div><div class="cal-wday">M</div><div class="cal-wday">T</div>
+        <div class="cal-wday">W</div><div class="cal-wday">T</div><div class="cal-wday">F</div><div class="cal-wday">S</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <!-- Legend -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-bottom:12px">
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:var(--subtext)"><span style="width:10px;height:10px;border-radius:50%;background:#ffcdd2;border:1px solid #e57373;display:inline-block"></span>Period</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:var(--subtext)"><span style="width:10px;height:10px;border-radius:50%;background:#dcedc8;border:1px solid #aed581;display:inline-block"></span>Rising</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:var(--subtext)"><span style="width:10px;height:10px;border-radius:50%;background:#fff9c4;border:1px solid #ffd54f;display:inline-block"></span>Ovulation</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:var(--subtext)"><span style="width:10px;height:10px;border-radius:50%;background:#e3f2fd;border:1px solid #90caf9;display:inline-block"></span>Luteal</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;color:var(--subtext)"><span style="width:10px;height:10px;border-radius:50%;background:#f3e5f5;border:1px solid #ce93d8;display:inline-block"></span>PMS</span>
+      </div>
+    </div>
+
+    <!-- Add a task -->
+    <div class="t-section" style="margin-top:8px">Add a Task</div>
+    <div class="card" style="margin-bottom:20px">
+      <div style="margin-bottom:10px">
+        <div class="t-label" style="margin-bottom:6px">Select day</div>
+        <input type="date" id="task-date-picker" style="width:100%;border-radius:14px;padding:12px 14px;border:1.5px solid #f0d0da;font-size:0.88rem;background:white;color:var(--text);font-family:inherit" />
+      </div>
+      <div class="todo-input-row" style="margin-bottom:0">
+        <input type="text" class="todo-input" id="todo-input" placeholder="Type your task..." />
+        <button class="todo-add-btn" onclick="addTodo()">Add</button>
+      </div>
+    </div>
+
+    <!-- Tasks for selected day -->
+    <div class="t-section" id="tasks-day-label">Tasks for today</div>
+    <div id="todo-section" class="card" style="margin-bottom:20px">
+      <div id="todo-list"></div>
+      <div id="todo-empty" style="font-size:0.82rem;color:var(--subtext);text-align:center;padding:12px 0">No tasks for this day yet</div>
+    </div>
+
+    <!-- Period duration override - inline, updates calendar directly -->
+    <div class="t-section">Edit Period Duration</div>
+    <div class="card" style="margin-bottom:20px">
+      <p style="font-size:0.8rem;color:var(--subtext);margin-bottom:14px;line-height:1.5">Override the period length for a specific month. The calendar updates instantly.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div class="t-label" style="margin-bottom:6px">Month</div>
+          <input type="month" id="inline-override-month" style="width:100%" />
+        </div>
+        <div>
+          <div class="t-label" style="margin-bottom:6px">Duration (days)</div>
+          <input type="number" id="inline-override-dur" min="1" max="10" placeholder="e.g. 5" style="width:100%" />
+        </div>
+        <button class="btn-primary" onclick="saveInlineOverride()" style="margin-top:4px">Apply to Calendar</button>
+      </div>
+      <div id="inline-override-list" style="margin-top:16px"></div>
+    </div>
+
+  </div>
+
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="switchTab('home')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item active" onclick="switchTab('cycle')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">My Cycle</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('insights')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- CHECK-IN / SYMPTOMS -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-checkin">
+  <div class="page-body" style="padding-top:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="t-title">Daily Check-in</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="checkin-phase-badge" style="font-size:0.75rem;font-weight:600;padding:4px 12px;border-radius:50px;background:#ffcdd2;color:#c62828"></div>
+        <button onclick="switchTab('home')" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #f0d0da;background:white;color:var(--subtext);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.background='#fff0f5';this.style.borderColor='var(--pink)'" onmouseout="this.style.background='white';this.style.borderColor='#f0d0da'">✕</button>
+      </div>
+    </div>
+
+    <!-- Already checked in state -->
+    <div id="checkin-done-state" style="display:none">
+      <div class="checkin-done-card">
+        <div class="checkin-done-icon">✓</div>
+        <div class="checkin-done-title">Already checked in today</div>
+        <div class="checkin-done-sub">You've already logged today's check-in. Come back tomorrow, or edit your entry below.</div>
+        <div id="checkin-done-summary"></div>
+        <button class="btn-outline" style="margin-top:16px" onclick="editTodayCheckin()">Edit today's check-in</button>
+      </div>
+    </div>
+
+    <!-- Check-in form -->
+    <div id="checkin-form-state">
+      <div class="stack-lg">
+
+        <!-- Mood -->
+        <div class="card">
+          <div class="t-label" style="margin-bottom:12px">How are you feeling today?</div>
+          <div class="word-grid" id="mood-grid">
+            <div class="word-btn" onclick="selectWord(this,'mood','Happy')">Happy</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Calm')">Calm</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Sad')">Sad</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Irritable')">Irritable</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Anxious')">Anxious</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Tired')">Tired</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Loving')">Loving</div>
+            <div class="word-btn" onclick="selectWord(this,'mood','Motivated')">Motivated</div>
+          </div>
+        </div>
+
+        <!-- Energy -->
+        <div class="card">
+          <div class="t-label" style="margin-bottom:12px">Energy level today</div>
+          <div class="scale-row" id="energy-scale">
+            <div class="scale-btn" onclick="selectScale(this,'energy',1)">Very Low</div>
+            <div class="scale-btn" onclick="selectScale(this,'energy',2)">Low</div>
+            <div class="scale-btn" onclick="selectScale(this,'energy',3)">Okay</div>
+            <div class="scale-btn" onclick="selectScale(this,'energy',4)">Good</div>
+            <div class="scale-btn" onclick="selectScale(this,'energy',5)">Great</div>
+          </div>
+        </div>
+
+        <!-- Sleep -->
+        <div class="card">
+          <div class="t-label" style="margin-bottom:12px">Sleep quality last night</div>
+          <div class="scale-row" id="sleep-scale">
+            <div class="scale-btn" onclick="selectScale(this,'sleep',1)">Terrible</div>
+            <div class="scale-btn" onclick="selectScale(this,'sleep',2)">Poor</div>
+            <div class="scale-btn" onclick="selectScale(this,'sleep',3)">Okay</div>
+            <div class="scale-btn" onclick="selectScale(this,'sleep',4)">Good</div>
+            <div class="scale-btn" onclick="selectScale(this,'sleep',5)">Great</div>
+          </div>
+        </div>
+
+        <!-- Symptoms -->
+        <div class="card">
+          <div class="t-label" style="margin-bottom:12px">Physical symptoms today</div>
+          <div class="symptom-wrap" id="symptom-wrap">
+            <div class="stag" onclick="toggleStag(this)" data-s="Cramps">Cramps</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Bloating">Bloating</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Headache">Headache</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Tender breasts">Tender breasts</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Acne">Acne</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Back pain">Back pain</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Fatigue">Fatigue</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="Nausea">Nausea</div>
+            <div class="stag" onclick="toggleStag(this)" data-s="None">None today</div>
+          </div>
+        </div>
+
+        <!-- UTI Checker -->
+        <div class="uti-banner" onclick="openUTISheet()">
+          <div class="uti-icon">💧</div>
+          <div class="uti-text">
+            <div class="uti-title">Check UTI symptoms</div>
+            <div class="uti-sub">Burning, frequent urination or pain? Check now</div>
+          </div>
+          <div class="uti-arrow">→</div>
+        </div>
+
+        <!-- Note -->
+        <div class="card">
+          <div class="t-label" style="margin-bottom:8px">Anything on your mind? (optional)</div>
+          <textarea id="daily-note" placeholder="How's your day really going?"></textarea>
+        </div>
+
+        <button class="btn-primary" id="submit-btn" onclick="submitCheckin()">Get my insight ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="switchTab('home')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('cycle')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">My Cycle</span>
+    </button>
+    <button class="nav-item active" onclick="switchTab('checkin')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- INSIGHT RESULT -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-insight-result">
+  <div class="page-body" style="padding-top:40px;display:flex;flex-direction:column;gap:16px;max-width:440px;margin:0 auto">
+    <div style="text-align:center">
+      <div style="font-size:2.4rem;margin-bottom:8px" id="result-emoji">🌙</div>
+      <div class="t-title">Your insight for today</div>
+    </div>
+    <div class="insight-result-blob" id="result-blob">
+      <div id="result-loading" style="padding:16px 0">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.8);margin-top:10px">Luna is reading your patterns...</p>
+      </div>
+      <div id="result-text" class="insight-result-text" style="display:none"></div>
+    </div>
+    <div id="result-actions" style="display:none" class="stack">
+      <div class="card">
+        <div class="t-label" style="margin-bottom:10px">Today's summary</div>
+        <div id="result-summary" style="font-size:0.84rem;color:var(--text);line-height:1.7"></div>
+      </div>
+      <button class="btn-primary" onclick="switchTab('home')">Back to home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- INSIGHTS HISTORY -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-insights">
+  <div class="page-body" style="padding-top:24px">
+    <div class="t-title" style="margin-bottom:20px">Your Journey</div>
+    <div id="insights-list"></div>
+    <div id="insights-empty" style="display:none;text-align:center;padding:48px 0">
+      <div style="font-size:3rem;margin-bottom:12px">🌱</div>
+      <div class="t-title" style="margin-bottom:8px">Your journey starts today</div>
+      <p class="t-body" style="margin-bottom:20px">Complete your first check-in to see your insights here.</p>
+      <button class="btn-primary" onclick="switchTab('checkin')" style="max-width:200px;margin:0 auto">Check in now</button>
+    </div>
+  </div>
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="switchTab('home')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('cycle')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">My Cycle</span>
+    </button>
+    <button class="nav-item active" onclick="switchTab('insights')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- PROFILE -->
+<!-- ══════════════════════════════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="page-body" style="padding-top:24px">
+    <div class="t-title" style="margin-bottom:16px">My Profile</div>
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profile-avatar">L</div>
+      <div class="profile-name" id="profile-name">Luna User</div>
+      <div class="profile-stage" id="profile-stage">—</div>
+      <div class="streak-badge">🔥 <span id="profile-streak">1</span> day streak</div>
+    </div>
+
+    <!-- Status switcher -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="t-label" style="margin-bottom:10px">My current status</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="status-tag status-period" id="status-period" onclick="switchStatus('periods')">🩸 Menstrual cycle</button>
+        <button class="status-tag status-pregnant" id="status-pregnant" onclick="switchStatus('pregnant')">🤰 Pregnant</button>
+        <button class="status-tag status-menopause" id="status-menopause" onclick="switchStatus('menopause')">🦋 Menopause</button>
+      </div>
+      <p class="t-body" style="font-size:0.75rem;margin-top:8px">Tap to update — Luna will adjust your experience immediately.</p>
+    </div>
+
+    <!-- Cycle info -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="t-label" style="margin-bottom:10px">Cycle overview</div>
+      <div id="cycle-overview" style="font-size:0.85rem;color:var(--text);line-height:1.8"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="t-label" style="margin-bottom:4px">Settings</div>
+      <div class="setting-row" onclick="goTo('screen-ob-cycle')">
+        <span class="setting-label">Update cycle info</span>
+        <span class="setting-arrow">→</span>
+      </div>
+      <div class="setting-row" onclick="goTo('screen-ob-stage')">
+        <span class="setting-label">Change life stage</span>
+        <span class="setting-arrow">→</span>
+      </div>
+      <div class="setting-row" onclick="goTo('screen-ob-login')">
+        <span class="setting-label">Update API key</span>
+        <span class="setting-arrow">→</span>
+      </div>
+      <div class="setting-row" onclick="clearData()">
+        <span class="setting-label" style="color:#e53935">Clear all data</span>
+        <span class="setting-arrow" style="color:#e53935">→</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bar">
+    <button class="nav-item" onclick="switchTab('home')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('cycle')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">My Cycle</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('insights')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Insights</span>
+    </button>
+    <button class="nav-item active" onclick="switchTab('profile')">
+      <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- MODALS -->
+<!-- ══════════════════════════════════════ -->
+<!-- UTI Checker -->
+<div class="modal-overlay" id="uti-modal" onclick="closeModal('uti-modal')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">💧 UTI Symptom Check</div>
+    <p class="t-body" style="margin-bottom:16px">Select any symptoms you're experiencing:</p>
+    <div class="symptom-wrap" style="margin-bottom:16px">
+      <div class="stag" onclick="toggleStag(this)" data-s="Burning when urinating">Burning when urinating</div>
+      <div class="stag" onclick="toggleStag(this)" data-s="Frequent urge to urinate">Frequent urge to urinate</div>
+      <div class="stag" onclick="toggleStag(this)" data-s="Cloudy urine">Cloudy urine</div>
+      <div class="stag" onclick="toggleStag(this)" data-s="Strong smelling urine">Strong smelling urine</div>
+      <div class="stag" onclick="toggleStag(this)" data-s="Pelvic pain">Pelvic pain</div>
+      <div class="stag" onclick="toggleStag(this)" data-s="Blood in urine">Blood in urine</div>
+    </div>
+    <div id="uti-result" class="card" style="margin-bottom:16px;display:none"></div>
+    <button class="btn-primary" onclick="checkUTI()">Check my symptoms</button>
+    <button class="btn-outline" style="margin-top:8px" onclick="closeModal('uti-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Period Override Sheet -->
+<div class="modal-overlay" id="override-modal" onclick="closeModal('override-modal')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit Period Duration</div>
+    <p class="t-body" style="margin-bottom:16px">Override the period length for a specific month.</p>
+    <div class="stack" style="margin-bottom:20px">
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Month</div>
+        <input type="month" id="override-month-input" style="width:100%" />
+      </div>
+      <div>
+        <div class="t-label" style="margin-bottom:6px">Duration (days)</div>
+        <input type="number" id="override-dur-input" min="1" max="10" placeholder="e.g. 3" style="width:100%" />
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveOverride()">Save</button>
+    <button class="btn-outline" style="margin-top:8px" onclick="closeModal('override-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Day detail sheet -->
+<div class="modal-overlay" id="day-modal" onclick="closeModal('day-modal')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="day-modal-title">Monday, March 9</div>
+    <div id="day-modal-phase" style="margin-bottom:14px"></div>
+    <div id="day-modal-tasks"></div>
+    <button class="btn-outline" style="margin-top:12px" onclick="closeModal('day-modal')">Close</button>
+  </div>
+</div>
+
+<!-- Pregnancy confirmation modal -->
+<div class="modal-overlay" id="pregnant-confirm-modal" onclick="closeModal('pregnant-confirm-modal')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()" style="text-align:center">
+    <div class="sheet-handle"></div>
+    <div style="font-size:2.2rem;margin-bottom:12px">🤰</div>
+    <div class="sheet-title" style="text-align:center">Switching to Pregnancy mode</div>
+    <p class="t-body" style="margin-bottom:24px;line-height:1.6">Luna will update your experience to support your pregnancy journey. Your menstrual cycle tracking will be paused.<br><br>Are you sure you'd like to switch?</p>
+    <button class="btn-primary" onclick="confirmPregnantSwitch()" style="margin-bottom:10px">Yes, I'm pregnant 🌸</button>
+    <button class="btn-outline" onclick="closeModal('pregnant-confirm-modal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let S = {
+  apiKey: '', email: '', userName: '', dob: '',
+  lifeStage: 'periods', pregnantWeeks: 0,
+  lastPeriod: '', cycleLen: 28, periodDur: 5,
+  periodOverrides: {}, checkIns: [], todos: {},
+  streak: 1, calYear: 0, calMonth: 0,
+  selectedCalDay: null
+};
+
+let currentMood = '', energyVal = 0, sleepVal = 0, selectedSymptoms = [];
+let isEditing = false;
+
+function save() { localStorage.setItem('luna_v2', JSON.stringify(S)); }
+function load() {
+  const d = localStorage.getItem('luna_v2');
+  if (d) S = { ...S, ...JSON.parse(d) };
+}
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function switchTab(tab) {
+  const map = {
+    home: 'screen-home', cycle: 'screen-cycle',
+    checkin: 'screen-checkin', insights: 'screen-insights', profile: 'screen-profile'
+  };
+  goTo(map[tab] || 'screen-home');
+  // Update nav active state per screen
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const screen = document.getElementById(map[tab]);
+  if (screen) {
+    const navItems = screen.querySelectorAll('.nav-item');
+    navItems.forEach(n => {
+      const lbl = n.querySelector('.nav-label').textContent.toLowerCase();
+      if (
+        (tab === 'home' && lbl === 'home') ||
+        (tab === 'cycle' && lbl === 'my cycle') ||
+        (tab === 'checkin' && lbl === 'insights') ||
+        (tab === 'insights' && lbl === 'insights') ||
+        (tab === 'profile' && lbl === 'profile')
+      ) n.classList.add('active');
+    });
+  }
+  if (tab === 'home') refreshHome();
+  if (tab === 'cycle') refreshCycle();
+  if (tab === 'checkin') refreshCheckin();
+  if (tab === 'insights') refreshInsights();
+  if (tab === 'profile') refreshProfile();
+}
+
+// ══════════════════════════════════════
+// ONBOARDING
+// ══════════════════════════════════════
+function saveLogin() {
+  S.email = document.getElementById('ob-email')?.value || 'user@luna.app';
+  goTo('screen-ob-name');
+}
+
+function saveName() {
+  const name = document.getElementById('ob-name').value.trim();
+  if (!name) { alert('Please enter your name 🌸'); return; }
+  const dob = document.getElementById('ob-dob').value;
+  if (!dob) { alert('Please enter your date of birth 🌸'); return; }
+  S.userName = name; S.dob = dob;
+  // Show menopause options if age 45+
+  const age = (new Date() - new Date(dob)) / (1000 * 60 * 60 * 24 * 365);
+  if (age >= 45) {
+    document.getElementById('stage-perimenopause').style.display = 'flex';
+    document.getElementById('stage-menopause').style.display = 'flex';
+  }
+  save();
+  goTo('screen-ob-stage');
+}
+
+function selectStage(el, stage) {
+  document.querySelectorAll('.stage-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  S.lifeStage = stage;
+  document.getElementById('pregnant-weeks-wrap').style.display = stage === 'pregnant' ? 'block' : 'none';
+}
+
+function saveStage() {
+  if (!S.lifeStage) { alert('Please select your life stage 🌸'); return; }
+  if (S.lifeStage === 'pregnant') {
+    S.pregnantWeeks = parseInt(document.getElementById('ob-weeks').value) || 12;
+  }
+  // Set up cycle ob screen based on stage
+  if (S.lifeStage === 'menopause') {
+    document.getElementById('cycle-ob-title').textContent = 'Your wellness setup';
+    document.getElementById('cycle-ob-sub').textContent = 'Luna will track your symptoms and wellbeing — no period tracking needed.';
+    document.getElementById('cycle-ob-fields').style.display = 'none';
+  } else if (S.lifeStage === 'pregnant') {
+    document.getElementById('cycle-ob-title').textContent = 'Your pregnancy details';
+    document.getElementById('cycle-ob-sub').textContent = 'Luna will support you through each trimester.';
+  }
+  save();
+  goTo('screen-ob-cycle');
+}
+
+function saveCycle() {
+  if (S.lifeStage !== 'menopause') {
+    const lp = document.getElementById('ob-last-period').value;
+    if (!lp) { alert('Please enter your last period date 🌸'); return; }
+    S.lastPeriod = lp;
+    S.cycleLen = parseInt(document.getElementById('ob-cycle-len').value) || 28;
+    S.periodDur = parseInt(document.getElementById('ob-period-dur').value) || 5;
+  } else {
+    S.lastPeriod = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  }
+  const key = document.getElementById('ob-api-key').value.trim();
+  if (key) S.apiKey = key;
+  S.streak = 1;
+  save();
+  loadApp();
+}
+
+function skipCycle() {
+  S.lastPeriod = new Date().toISOString().split('T')[0];
+  S.streak = 1;
+  save();
+  loadApp();
+}
+
+// ══════════════════════════════════════
+// CYCLE CALCULATIONS
+// ══════════════════════════════════════
+function getCycleDay(dateStr) {
+  if (!S.lastPeriod) return 1;
+  const last = new Date(S.lastPeriod);
+  const d = new Date(dateStr || today());
+  let diff = Math.floor((d - last) / 86400000);
+  diff = ((diff % S.cycleLen) + S.cycleLen) % S.cycleLen;
+  return diff + 1;
+}
+
+// Given a date, find the start date of the cycle that date falls in
+function getCycleStartDate(dateStr) {
+  if (!S.lastPeriod) return S.lastPeriod || today();
+  const last = new Date(S.lastPeriod);
+  const d = new Date(dateStr || today());
+  let diff = Math.floor((d - last) / 86400000);
+  const cyclesElapsed = Math.floor(diff / S.cycleLen);
+  if (cyclesElapsed < 0) return S.lastPeriod;
+  const startDate = new Date(last);
+  startDate.setDate(last.getDate() + cyclesElapsed * S.cycleLen);
+  return startDate.toISOString().split('T')[0];
+}
+
+// Get the period duration that applies to the cycle containing the given date
+function getPeriodDurForDate(dateStr) {
+  const cycleStart = getCycleStartDate(dateStr);
+  const monthKey = cycleStart.substring(0, 7); // 'YYYY-MM'
+  if (S.periodOverrides[monthKey] !== undefined) return S.periodOverrides[monthKey];
+  return S.periodDur;
+}
+
+function getPhase(cd, periodDur) {
+  const cl = S.cycleLen;
+  const pd = (periodDur !== undefined) ? periodDur : S.periodDur;
+
+  const ovDay   = Math.round(cl * 0.5);
+  const ovStart = ovDay - 1;
+  const ovEnd   = ovDay + 1;
+  const pmsStart = cl - 4;
+
+  if (cd <= pd)                        return 'period';
+  if (cd <= ovStart - 1)               return 'follicular';
+  if (cd >= ovStart && cd <= ovEnd)    return 'ovulation';
+  if (cd >= pmsStart)                  return 'pms';
+  return 'luteal';
+}
+
+function getPeriodDur(monthStr) {
+  if (monthStr && S.periodOverrides[monthStr] !== undefined) return S.periodOverrides[monthStr];
+  return S.periodDur;
+}
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+const phaseData = {
+  period:     { label: 'Period', color: '#ffcdd2', text: '#c62828', dot: '#ef9a9a', themeClass: 'theme-period',
+    bodyText: 'Your body is\nresting today.', emoji: '🌊',
+    quotes: ['"The world can wait. You come first today."', '"Rest is not weakness — it\'s wisdom."', '"Even the moon disappears before she shines again."'],
+    sub: 'Your body is working hard right now. Be gentle with yourself.',
+    updates: ['Might feel heavy cramps', 'Headache and back pain may come', 'Dark chocolate can help', 'Stay warm and rest more'] },
+  follicular: { label: 'Rising', color: '#e8f5e9', text: '#2e7d32', dot: '#a5d6a7', themeClass: 'theme-follicular',
+    bodyText: 'Your energy is\nrising today.', emoji: '🌱',
+    quotes: ['"Something in you is waking up. Let it."', '"Fresh energy. Fresh eyes. Fresh start."', '"The fog is lifting — look how bright you are."'],
+    sub: 'Your estrogen is rising. Creativity and focus are your superpowers.',
+    updates: ['Good day for starting new things', 'Creative work flows easily now', 'Light exercise is great today', 'Your skin is likely glowing'] },
+  ovulation:  { label: 'Peak', color: '#fff9c4', text: '#f57f17', dot: '#ffe082', themeClass: 'theme-ovulation',
+    bodyText: 'Your body is\nat its peak today.', emoji: '☀️',
+    quotes: ['"You are magnetic right now. The world notices."', '"Say the thing. Do the thing. Today you have everything."', '"This is your season to bloom."'],
+    sub: 'Peak phase — your confidence and communication are naturally elevated.',
+    updates: ['Best day for important meetings', 'High energy — use it well', 'Social connections come naturally', 'Fertility is at its highest'] },
+  luteal:     { label: 'Slowing', color: '#e3f2fd', text: '#1565c0', dot: '#90caf9', themeClass: 'theme-luteal',
+    bodyText: 'Your body is\nslowing down.', emoji: '🌙',
+    quotes: ['"Not every day needs to be conquered. Today, just breathe."', '"Your intuition is sharpest right now. Trust it."', '"Slow is intentional. You\'re doing it right."'],
+    sub: 'Progesterone is rising. Magnesium-rich foods like dark chocolate help.',
+    updates: ['Good time for deep thinking', 'Avoid overcommitting today', 'Magnesium helps mood now', 'Nourishing foods are your friend'] },
+  pms:        { label: 'PMS', color: '#f3e5f5', text: '#7b1fa2', dot: '#ce93d8', themeClass: 'theme-pms',
+    bodyText: 'Be extra gentle\nwith yourself today.', emoji: '🌧️',
+    quotes: ['"You\'re not too much. You\'re just feeling everything deeply."', '"Be extra gentle with yourself today."', '"Hard days are part of the cycle. This one will pass."'],
+    sub: 'Your period is coming soon. Reducing caffeine helps significantly.',
+    updates: ['Reduce caffeine and sugar today', 'Omega-3 foods ease mood swings', 'Light exercise releases tension', 'Your feelings are completely valid'] }
+};
+
+// ══════════════════════════════════════
+// PHASE THEME
+// ══════════════════════════════════════
+function applyPhaseTheme(phase) {
+  if (S.lifeStage === 'menopause') return;
+  const pd = phaseData[phase] || phaseData.luteal;
+  document.body.className = pd.themeClass;
+  const amoebaBlob = document.getElementById('amoeba-blob');
+  if (amoebaBlob) {
+    const colors = {
+      period: '#ef9a9a', follicular: '#a5d6a7',
+      ovulation: '#ffe082', luteal: '#90caf9', pms: '#ce93d8'
+    };
+    amoebaBlob.setAttribute('fill', colors[phase] || '#f48fb1');
+  }
+}
+
+// ══════════════════════════════════════
+// HOME
+// ══════════════════════════════════════
+function refreshHome() {
+  const name = S.userName || 'Bestie';
+  document.getElementById('home-greeting').textContent = `Hey ${name},`;
+  const av = document.getElementById('home-avatar');
+  av.textContent = name[0].toUpperCase();
+
+  const cd = getCycleDay();
+  const phase = S.lifeStage === 'menopause' ? 'luteal' : getPhase(cd, getPeriodDurForDate(today()));
+  const pd = phaseData[phase];
+  applyPhaseTheme(phase);
+
+  // Phase text
+  const pt = document.getElementById('phase-text');
+  pt.textContent = pd.bodyText;
+
+  // Cycle day indicator below phase text
+  const cdi = document.getElementById('cycle-day-indicator');
+  if (cdi) {
+    if (S.lifeStage === 'menopause') {
+      cdi.textContent = '';
+    } else {
+      const nextPeriod = getNextPeriodDate();
+      cdi.textContent = `Day ${cd} of ${S.cycleLen}${nextPeriod ? '  ·  Next period ' + nextPeriod : ''}`;
+    }
+  }
+
+  // Quote
+  const quotes = pd.quotes;
+  const q = quotes[new Date().getDate() % quotes.length];
+  document.getElementById('blob-quote').textContent = q;
+  document.getElementById('blob-sub').textContent = pd.sub + (cd ? ` (Day ${cd} of ${S.cycleLen})` : '');
+
+  // Updates
+  const ur = document.getElementById('updates-row');
+  ur.innerHTML = pd.updates.map(u => `<div class="update-card">${u}</div>`).join('');
+
+  // Week strip
+  buildWeekStrip();
+
+  // Chart
+  buildCycleChart();
+}
+
+function buildWeekStrip() {
+  const strip = document.getElementById('week-strip');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const now = new Date();
+  const todayNum = now.getDay();
+  strip.innerHTML = '';
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    const cd = getCycleDay(dateStr);
+    const phase = getPhase(cd, getPeriodDurForDate(dateStr));
+    const isToday = i === 0;
+    const isPeriod = phase === 'period';
+    const el = document.createElement('div');
+    el.className = `week-day${isToday ? ' today' : ''}${isPeriod && !isToday ? ' period-day' : ''}`;
+    el.innerHTML = `<div class="week-day-name">${days[d.getDay()]}</div><div class="week-day-num">${d.getDate()}</div>`;
+    strip.appendChild(el);
+  }
+}
+
+function buildCycleChart() {
+  const svg = document.getElementById('chart-svg');
+  const labels = document.getElementById('chart-labels');
+  if (!svg) return;
+
+  // Only show months from when user registered (lastPeriod date) onwards
+  if (!S.lastPeriod) {
+    svg.innerHTML = `<text x="150" y="44" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.7)">No cycle data yet</text>`;
+    if (labels) labels.innerHTML = '';
+    return;
+  }
+
+  const startDate = new Date(S.lastPeriod);
+  const now = new Date();
+  const months = [];
+
+  // Build months from registration month up to current month only
+  let cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  while (cur <= new Date(now.getFullYear(), now.getMonth(), 1)) {
+    months.push({ label: cur.toLocaleDateString('en', { month: 'short' }), val: S.cycleLen });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+
+  // Need at least 2 points to draw a line
+  if (months.length < 2) {
+    svg.innerHTML = `<text x="150" y="44" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.7)">Tracking since ${startDate.toLocaleDateString('en',{month:'short',year:'numeric'})}</text>`;
+    if (labels) labels.innerHTML = '';
+    return;
+  }
+
+  // Use actual check-in data where available to vary the line meaningfully
+  months.forEach((m, i) => {
+    const monthCheckIns = S.checkIns.filter(c => {
+      const d = new Date(c.date);
+      return d.getFullYear() === (new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)).getFullYear() &&
+             d.getMonth() === (new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)).getMonth();
+    });
+    if (monthCheckIns.length > 0) {
+      const avgEnergy = monthCheckIns.reduce((a,c) => a + (c.energy||3), 0) / monthCheckIns.length;
+      m.val = Math.round(S.cycleLen - 2 + avgEnergy * 0.5);
+    }
+  });
+
+  const vals = months.map(m => m.val);
+  const min = Math.min(...vals) - 2;
+  const max = Math.max(...vals) + 2;
+  const w = 300, h = 80;
+  const pts = vals.map((v, i) => {
+    const x = (i / (vals.length - 1)) * w;
+    const y = h - ((v - min) / (max - min || 1)) * h;
+    return { x, y, v };
+  });
+
+  const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+  svg.innerHTML = `
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
+    <path d="${path} L${w},${h} L0,${h} Z" fill="url(#lg)"/>
+    <path d="${path}" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="white"/><text x="${p.x}" y="${p.y - 8}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.9)">${p.v}</text>`).join('')}
+  `;
+  if (labels) labels.innerHTML = months.map(m => `<div class="chart-label">${m.label}</div>`).join('');
+}
+
+// ══════════════════════════════════════
+// CYCLE PAGE
+// ══════════════════════════════════════
+let calViewYear = 0, calViewMonth = 0;
+
+function refreshCycle() {
+  const now = new Date();
+  if (!calViewYear) { calViewYear = now.getFullYear(); calViewMonth = now.getMonth(); }
+  S.calYear = calViewYear; S.calMonth = calViewMonth;
+  // Init date picker to selected day or today
+  const datePicker = document.getElementById('task-date-picker');
+  if (datePicker) {
+    if (!datePicker.value) datePicker.value = S.selectedCalDay || today();
+    datePicker.onchange = () => {
+      S.selectedCalDay = datePicker.value;
+      renderTodos();
+    };
+  }
+  buildFullCalendar();
+  buildOverrideList();
+  renderTodos();
+}
+
+function buildFullCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-title').textContent = `${months[calViewMonth]} ${calViewYear}`;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const todayStr = today();
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-cell empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    const isBeforeStart = S.lastPeriod && dateStr < S.lastPeriod;
+    if (isBeforeStart) {
+      // No phase colour for dates before the user registered
+      el.className = 'cal-cell';
+      el.style.opacity = '0.35';
+      el.style.pointerEvents = 'none';
+    } else {
+      const cd = getCycleDay(dateStr);
+      const periodDurForDate = getPeriodDurForDate(dateStr);
+      const phase = getPhase(cd, periodDurForDate);
+      el.className = `cal-cell ${phase}`;
+      if (dateStr === todayStr) el.classList.add('today');
+      const hasTasks = S.todos[dateStr] && S.todos[dateStr].length > 0;
+      if (hasTasks) el.classList.add('has-task');
+      el.onclick = () => openDaySheet(dateStr);
+    }
+    el.textContent = d;
+    grid.appendChild(el);
+  }
+}
+
+function prevMonth() {
+  calViewMonth--;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  buildFullCalendar();
+}
+
+function nextMonth() {
+  calViewMonth++;
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  buildFullCalendar();
+}
+
+function openDaySheet(dateStr) {
+  S.selectedCalDay = dateStr;
+  // Sync the date picker in the task section
+  const datePicker = document.getElementById('task-date-picker');
+  if (datePicker) datePicker.value = dateStr;
+  updateTaskDayLabel(dateStr);
+  renderTodos();
+  // Also show day detail modal
+  const d = new Date(dateStr + 'T00:00:00');
+  const cd = getCycleDay(dateStr);
+  const phase = getPhase(cd, getPeriodDurForDate(dateStr));
+  const pd = phaseData[phase];
+  document.getElementById('day-modal-title').textContent = d.toLocaleDateString('en', {weekday:'long', month:'long', day:'numeric'});
+  document.getElementById('day-modal-phase').innerHTML = `<span style="background:${pd.color};color:${pd.text};padding:4px 12px;border-radius:50px;font-size:0.75rem;font-weight:600">Day ${cd} — ${pd.label}</span>`;
+  renderDayTasks(dateStr);
+  openModal('day-modal');
+}
+
+// ══════════════════════════════════════
+// TODOS
+// ══════════════════════════════════════
+const taskKeywords = {
+  heavy: ['clean','cleaning','gym','workout','exercise','run','running','move'],
+  important: ['meeting','presentation','interview','exam','call','negotiate'],
+  creative: ['write','design','paint','create','plan','brainstorm'],
+  rest: ['rest','relax','sleep','nap','meditate']
+};
+
+function getTaskWarning(task, phase) {
+  const t = task.toLowerCase();
+  const isHeavy = taskKeywords.heavy.some(k => t.includes(k));
+  const isImportant = taskKeywords.important.some(k => t.includes(k));
+  if (isHeavy && (phase === 'period' || phase === 'pms')) {
+    const bestDay = getNextPhaseDate('ovulation');
+    return `⚠️ This might be tough during your ${phase === 'period' ? 'period' : 'PMS'} — consider moving to ${bestDay} for better energy`;
+  }
+  if (isImportant && phase === 'pms') {
+    return '⚠️ PMS week can affect focus — ovulation week is your peak for important tasks';
+  }
+  return null;
+}
+
+function getNextPhaseDate(targetPhase) {
+  const now = new Date();
+  for (let i = 1; i <= 35; i++) {
+    const d = new Date(now); d.setDate(now.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    if (getPhase(getCycleDay(dateStr), getPeriodDurForDate(dateStr)) === targetPhase) {
+      return d.toLocaleDateString('en', {month:'short', day:'numeric'});
+    }
+  }
+  return 'next cycle';
+}
+
+function addTodo() {
+  const input = document.getElementById('todo-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const datePicker = document.getElementById('task-date-picker');
+  const dateStr = (datePicker && datePicker.value) ? datePicker.value : (S.selectedCalDay || today());
+  if (!S.todos[dateStr]) S.todos[dateStr] = [];
+  S.todos[dateStr].push({ text, done: false, id: Date.now() });
+  input.value = '';
+  S.selectedCalDay = dateStr;
+  save();
+  renderTodos();
+  buildFullCalendar();
+  updateTaskDayLabel(dateStr);
+}
+
+function updateTaskDayLabel(dateStr) {
+  const label = document.getElementById('tasks-day-label');
+  if (!label) return;
+  const d = new Date(dateStr + 'T00:00:00');
+  const isToday = dateStr === today();
+  label.textContent = isToday ? 'Tasks for today' : `Tasks for ${d.toLocaleDateString('en', {weekday:'long', month:'short', day:'numeric'})}`;
+}
+
+function renderTodos() {
+  const datePicker = document.getElementById('task-date-picker');
+  const dateStr = (datePicker && datePicker.value) ? datePicker.value : (S.selectedCalDay || today());
+  S.selectedCalDay = dateStr;
+  updateTaskDayLabel(dateStr);
+  renderDayTasks(dateStr);
+}
+
+function renderDayTasks(dateStr) {
+  const list = document.getElementById('todo-list') || document.getElementById('day-modal-tasks');
+  const empty = document.getElementById('todo-empty');
+  const tasks = S.todos[dateStr] || [];
+  const cd = getCycleDay(dateStr);
+  const phase = getPhase(cd);
+
+  const targetEl = document.getElementById('day-modal-tasks') || document.getElementById('todo-list');
+  if (!targetEl) return;
+
+  if (tasks.length === 0) {
+    targetEl.innerHTML = '<div style="font-size:0.82rem;color:var(--subtext);text-align:center;padding:12px 0">No tasks for this day yet</div>';
+    if (empty) empty.style.display = 'none';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  targetEl.innerHTML = tasks.map((t, idx) => {
+    const warning = getTaskWarning(t.text, phase);
+    return `
+      <div class="todo-item">
+        <div class="todo-check ${t.done ? 'done' : ''}" onclick="toggleTodo('${dateStr}',${idx})">${t.done ? '✓' : ''}</div>
+        <div style="flex:1">
+          <div class="todo-text ${t.done ? 'done-text' : ''}">${t.text}</div>
+          ${warning ? `<div class="todo-warning">${warning}</div>` : ''}
+        </div>
+        <div onclick="deleteTodo('${dateStr}',${idx})" style="color:var(--subtext);cursor:pointer;padding:0 4px;font-size:1.1rem">×</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleTodo(dateStr, idx) {
+  if (S.todos[dateStr] && S.todos[dateStr][idx]) {
+    S.todos[dateStr][idx].done = !S.todos[dateStr][idx].done;
+    save(); renderDayTasks(dateStr);
+  }
+}
+
+function deleteTodo(dateStr, idx) {
+  if (S.todos[dateStr]) {
+    S.todos[dateStr].splice(idx, 1);
+    save(); renderDayTasks(dateStr); buildFullCalendar();
+  }
+}
+
+// ══════════════════════════════════════
+// PERIOD OVERRIDES
+// ══════════════════════════════════════
+function saveInlineOverride() {
+  const m = document.getElementById('inline-override-month').value;
+  const d = parseInt(document.getElementById('inline-override-dur').value);
+  if (!m || !d || d < 1 || d > 10) return; // silent — just do nothing if incomplete
+  S.periodOverrides[m] = d;
+  save();
+  buildOverrideList();
+  buildFullCalendar();
+  // Visual feedback on button only
+  const btn = document.querySelector('[onclick="saveInlineOverride()"]');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Applied!';
+    btn.style.background = '#4caf50';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1600);
+  }
+}
+
+function buildOverrideList() {
+  const list = document.getElementById('inline-override-list');
+  if (!list) return;
+  const overrides = Object.entries(S.periodOverrides);
+  if (overrides.length === 0) {
+    list.innerHTML = `<div class="t-body" style="font-size:0.8rem;color:var(--subtext)">No overrides yet. Default is ${S.periodDur} days.</div>`;
+    return;
+  }
+  list.innerHTML = `<div class="t-label" style="margin-bottom:8px">Active overrides</div>` + overrides.map(([month, dur]) => `
+    <div class="period-override-row">
+      <div>
+        <div class="override-month">${formatMonth(month)}</div>
+        <div class="override-dur">${dur} days (default: ${S.periodDur})</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="override-edit-btn" onclick="loadOverrideForEdit('${month}',${dur})">Edit</button>
+        <button class="override-edit-btn" style="color:#e53935;border-color:#ffcdd2" onclick="deleteOverride('${month}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadOverrideForEdit(month, dur) {
+  document.getElementById('inline-override-month').value = month;
+  document.getElementById('inline-override-dur').value = dur;
+  document.getElementById('inline-override-month').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function deleteOverride(month) {
+  delete S.periodOverrides[month];
+  save();
+  buildOverrideList();
+  buildFullCalendar(); // calendar reflects immediately
+}
+
+function formatMonth(m) {
+  const [y, mo] = m.split('-');
+  return new Date(y, parseInt(mo)-1, 1).toLocaleDateString('en', {month:'long', year:'numeric'});
+}
+
+// ══════════════════════════════════════
+// CHECK-IN
+// ══════════════════════════════════════
+function refreshCheckin() {
+  currentMood = ''; energyVal = 0; sleepVal = 0; selectedSymptoms = [];
+  window.selectedMoods = [];
+  document.querySelectorAll('.word-btn, .scale-btn, .stag').forEach(e => e.classList.remove('selected'));
+  document.getElementById('daily-note').value = '';
+
+  const todayCI = S.checkIns.find(c => c.date === today());
+  const doneState = document.getElementById('checkin-done-state');
+  const formState = document.getElementById('checkin-form-state');
+
+  if (todayCI && !isEditing) {
+    doneState.style.display = 'block';
+    formState.style.display = 'none';
+    const sum = document.getElementById('checkin-done-summary');
+    sum.innerHTML = `
+      <div class="checkin-summary-row"><span class="cs-label">Mood</span><span class="cs-value">${todayCI.mood}</span></div>
+      <div class="checkin-summary-row"><span class="cs-label">Energy</span><span class="cs-value">${['','Very Low','Low','Okay','Good','Great'][todayCI.energy]}</span></div>
+      <div class="checkin-summary-row"><span class="cs-label">Sleep</span><span class="cs-value">${['','Terrible','Poor','Okay','Good','Great'][todayCI.sleep]}</span></div>
+      ${todayCI.symptoms.length ? `<div class="checkin-summary-row"><span class="cs-label">Symptoms</span><span class="cs-value">${todayCI.symptoms.join(', ')}</span></div>` : ''}
+    `;
+  } else {
+    doneState.style.display = 'none';
+    formState.style.display = 'block';
+    if (todayCI && isEditing) {
+      // Pre-fill with existing data
+      setTimeout(() => {
+        document.querySelectorAll('#mood-grid .word-btn').forEach(b => {
+          const moods = (todayCI.mood || '').split(', ');
+          if (moods.includes(b.textContent)) {
+            b.classList.add('selected');
+            if (!window.selectedMoods) window.selectedMoods = [];
+            window.selectedMoods.push(b.textContent);
+            currentMood = window.selectedMoods.join(', ');
+          }
+        });
+        document.querySelectorAll('#energy-scale .scale-btn').forEach((b,i) => { if (i+1 === todayCI.energy) { b.classList.add('selected'); energyVal = todayCI.energy; }});
+        document.querySelectorAll('#sleep-scale .scale-btn').forEach((b,i) => { if (i+1 === todayCI.sleep) { b.classList.add('selected'); sleepVal = todayCI.sleep; }});
+        todayCI.symptoms.forEach(s => {
+          document.querySelectorAll('.stag').forEach(t => { if (t.dataset.s === s) { t.classList.add('selected'); selectedSymptoms.push(s); }});
+        });
+        document.getElementById('daily-note').value = todayCI.note || '';
+      }, 100);
+    }
+  }
+
+  // Phase badge
+  const cd = getCycleDay(); const phase = getPhase(cd, getPeriodDurForDate(today()));
+  const pd = phaseData[phase];
+  const badge = document.getElementById('checkin-phase-badge');
+  badge.style.background = pd.color; badge.style.color = pd.text;
+  badge.textContent = `Day ${cd} · ${pd.label}`;
+}
+
+function editTodayCheckin() { isEditing = true; refreshCheckin(); }
+
+function selectWord(el, type, val) {
+  // Multi-select: toggle like symptom tags
+  el.classList.toggle('selected');
+  if (type === 'mood') {
+    if (!window.selectedMoods) window.selectedMoods = [];
+    if (el.classList.contains('selected')) {
+      window.selectedMoods.push(val);
+    } else {
+      window.selectedMoods = window.selectedMoods.filter(m => m !== val);
+    }
+    currentMood = window.selectedMoods.join(', ');
+  }
+}
+
+function selectScale(el, type, val) {
+  const row = el.parentElement;
+  row.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  if (type === 'energy') energyVal = val;
+  else sleepVal = val;
+}
+
+function toggleStag(el) {
+  el.classList.toggle('selected');
+  const s = el.dataset.s;
+  if (el.classList.contains('selected')) selectedSymptoms.push(s);
+  else selectedSymptoms = selectedSymptoms.filter(x => x !== s);
+}
+
+async function submitCheckin() {
+  if (!currentMood) { alert('Please select your mood 🌸'); return; }
+  if (!energyVal) { alert('Please select your energy level 🌸'); return; }
+  if (!sleepVal) { alert('Please select your sleep quality 🌸'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  isEditing = false;
+
+  const cd = getCycleDay(); const phase = getPhase(cd, getPeriodDurForDate(today()));
+  const note = document.getElementById('daily-note').value.trim();
+  const ci = { date: today(), mood: currentMood, energy: energyVal, sleep: sleepVal, symptoms: [...selectedSymptoms], note, phase, cycleDay: cd, insight: '' };
+
+  goTo('screen-insight-result');
+  document.getElementById('result-loading').style.display = 'block';
+  document.getElementById('result-text').style.display = 'none';
+  document.getElementById('result-actions').style.display = 'none';
+
+  const pd = phaseData[phase];
+  document.getElementById('result-emoji').textContent = pd.emoji;
+  const rb = document.getElementById('result-blob'); if(rb) rb.style.background = pd.color.replace(')',',0.8)').replace('rgb','rgba');
+
+  const summary = document.getElementById('result-summary');
+  summary.innerHTML = `Mood: <strong>${ci.mood}</strong> · Energy: <strong>${['','Very Low','Low','Okay','Good','Great'][ci.energy]}</strong> · Sleep: <strong>${['','Terrible','Poor','Okay','Good','Great'][ci.sleep]}</strong>${ci.symptoms.length ? ` · ${ci.symptoms.join(', ')}` : ''}`;
+
+  const insight = await getInsight(ci);
+  ci.insight = insight;
+  S.checkIns = S.checkIns.filter(c => c.date !== today());
+  S.checkIns.push(ci);
+  S.streak = (S.streak || 0) + 1;
+  save();
+
+  document.getElementById('result-loading').style.display = 'none';
+  document.getElementById('result-text').style.display = 'block';
+  document.getElementById('result-text').textContent = insight;
+  document.getElementById('result-actions').style.display = 'block';
+
+  btn.disabled = false; btn.textContent = 'Get my insight ✦';
+}
+
+async function getInsight(ci) {
+  if (!S.apiKey) return getDemoInsight(ci);
+  const history = S.checkIns.slice(-7).map(c => `${c.date}: mood=${c.mood}, energy=${c.energy}/5, sleep=${c.sleep}/5, phase=${c.phase}`).join('\n');
+  const prompt = `You are Luna, a warm empathetic women's wellness companion. Speak like a knowledgeable best friend — never clinical.
+
+User: ${S.userName}, life stage: ${S.lifeStage}, cycle day: ${ci.cycleDay}, phase: ${ci.phase}
+Today: mood=${ci.mood}, energy=${ci.energy}/5, sleep=${ci.sleep}/5, symptoms: ${ci.symptoms.join(',')||'none'}
+Note: "${ci.note||'none'}"
+History: ${history||'first check-in'}
+
+Write 3-4 warm sentences: acknowledge how she feels, connect it to her cycle phase naturally, give ONE specific actionable tip, end encouragingly. No bullet points, no headers. Just warm flowing text.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key': S.apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    if (data.content?.[0]?.text) return data.content[0].text;
+  } catch(e) {}
+  return getDemoInsight(ci);
+}
+
+function getDemoInsight(ci) {
+  const pd = phaseData[ci.phase];
+  const name = S.userName || 'lovely';
+  const energyWords = ['','very low','low','okay','good','great'];
+  return `${name}, feeling ${ci.mood.toLowerCase()} with ${energyWords[ci.energy]} energy today makes complete sense for your ${pd.label.toLowerCase()} phase. ${pd.sub} Remember — ${pd.quotes[0].replace(/"/g,'')} You're doing beautifully. 🌙`;
+}
+
+// ══════════════════════════════════════
+// INSIGHTS HISTORY
+// ══════════════════════════════════════
+function refreshInsights() {
+  const list = document.getElementById('insights-list');
+  const empty = document.getElementById('insights-empty');
+  if (!S.checkIns.length) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = [...S.checkIns].reverse().map(ci => {
+    const pd = phaseData[ci.phase] || phaseData.luteal;
+    return `
+      <div class="insight-card">
+        <div class="insight-card-date">${new Date(ci.date+'T00:00:00').toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric'})}</div>
+        <div class="insight-card-phase" style="background:${pd.color};color:${pd.text}">${pd.label} · Day ${ci.cycleDay}</div>
+        <div class="insight-card-text">${ci.insight || 'No insight recorded.'}</div>
+        <div class="insight-card-stats">
+          <span class="stat-chip">Mood: ${ci.mood}</span>
+          <span class="stat-chip">Energy: ${ci.energy}/5</span>
+          <span class="stat-chip">Sleep: ${ci.sleep}/5</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════
+function refreshProfile() {
+  const name = S.userName || 'Luna User';
+  document.getElementById('profile-name').textContent = name;
+  document.getElementById('profile-avatar').textContent = name[0].toUpperCase();
+  document.getElementById('profile-streak').textContent = S.streak || 1;
+  const stageLabels = { periods:'Regular cycle', pregnant:'Pregnant', postpartum:'Postpartum', perimenopause:'Perimenopause', menopause:'Menopause' };
+  document.getElementById('profile-stage').textContent = stageLabels[S.lifeStage] || '—';
+
+  const cd = getCycleDay(); const phase = getPhase(cd); const pd = phaseData[phase];
+  const nextPeriod = getNextPeriodDate();
+  document.getElementById('cycle-overview').innerHTML = `
+    Current phase: <strong>${pd.label}</strong><br>
+    Cycle day: <strong>${cd} of ${S.cycleLen}</strong><br>
+    ${nextPeriod ? `Next period: <strong>${nextPeriod}</strong><br>` : ''}
+    Total check-ins: <strong>${S.checkIns.length}</strong>
+  `;
+
+  // Highlight current status
+  document.querySelectorAll('.status-tag').forEach(t => t.style.opacity = '0.5');
+  const activeTag = document.getElementById(`status-${S.lifeStage === 'periods' ? 'period' : S.lifeStage}`);
+  if (activeTag) activeTag.style.opacity = '1';
+}
+
+function switchStatus(newStage) {
+  // Ask for confirmation when switching from menstrual cycle to pregnant
+  if (newStage === 'pregnant' && S.lifeStage === 'periods') {
+    openModal('pregnant-confirm-modal');
+    return;
+  }
+  S.lifeStage = newStage;
+  save();
+  refreshProfile();
+  refreshHome();
+}
+
+function confirmPregnantSwitch() {
+  closeModal('pregnant-confirm-modal');
+  S.lifeStage = 'pregnant';
+  save();
+  refreshProfile();
+  refreshHome();
+}
+
+function getNextPeriodDate() {
+  if (!S.lastPeriod) return null;
+  const last = new Date(S.lastPeriod);
+  const now = new Date();
+  let next = new Date(last);
+  while (next <= now) next.setDate(next.getDate() + S.cycleLen);
+  return next.toLocaleDateString('en', {month:'short', day:'numeric'});
+}
+
+function clearData() {
+  if (confirm('Clear all Luna data?')) {
+    localStorage.removeItem('luna_v2');
+    S = { apiKey:'', email:'', userName:'', dob:'', lifeStage:'periods', pregnantWeeks:0, lastPeriod:'', cycleLen:28, periodDur:5, periodOverrides:{}, checkIns:[], todos:{}, streak:1, calYear:0, calMonth:0, selectedCalDay:null };
+    goTo('screen-splash');
+  }
+}
+
+// ══════════════════════════════════════
+// UTI CHECKER
+// ══════════════════════════════════════
+function checkUTI() {
+  const selected = Array.from(document.querySelectorAll('#uti-modal .stag.selected')).map(e => e.dataset.s);
+  const result = document.getElementById('uti-result');
+  result.style.display = 'block';
+  if (selected.length === 0) {
+    result.innerHTML = '<div style="color:var(--deep);font-size:0.85rem">✅ No UTI symptoms selected. You\'re likely fine! Stay hydrated.</div>';
+  } else if (selected.length >= 3 || selected.includes('Blood in urine')) {
+    result.innerHTML = '<div style="color:#c62828;font-size:0.85rem;font-weight:600">⚠️ You have multiple UTI symptoms. Please consult a doctor soon. Drink plenty of water in the meantime.</div>';
+  } else {
+    result.innerHTML = `<div style="color:#e65100;font-size:0.85rem"><strong>Possible early UTI signs.</strong><br>Drink 2L+ water today, avoid caffeine, and consider seeing a doctor if symptoms persist or worsen.</div>`;
+  }
+}
+
+// ══════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openUTISheet() { openModal('uti-modal'); }
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function loadApp() {
+  const now = new Date();
+  calViewYear = now.getFullYear();
+  calViewMonth = now.getMonth();
+  S.selectedCalDay = today();
+  refreshHome();
+  goTo('screen-home');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  load();
+  document.getElementById('ob-last-period').valueAsDate = new Date();
+  document.getElementById('ob-dob').valueAsDate = new Date(2000, 0, 1);
+  if (S.userName && S.lastPeriod) loadApp();
+});
+</script>
+</body>
+</html>
